@@ -1,0 +1,32 @@
+---
+alwaysApply: true
+description: TailwindCSS 使用规范，统一遵循项目级配置
+---
+# TailwindCSS Config Rule
+
+所有前端样式实现必须优先使用 TailwindCSS，并遵循项目统一配置，不允许绕过或分叉配置。
+
+## 配置来源
+
+- 统一配置入口：[`internal/tailwind-config/src/index.ts`](mdc:internal/tailwind-config/src/index.ts)
+- PostCSS 配置入口：[`internal/tailwind-config/src/postcss.config.ts`](mdc:internal/tailwind-config/src/postcss.config.ts)
+- 配置包说明：[`internal/tailwind-config/package.json`](mdc:internal/tailwind-config/package.json)
+- 设计 Token 入口：[`packages/@core/base/design/src/design-tokens/index.ts`](mdc:packages/@core/base/design/src/design-tokens/index.ts)
+- 默认主题 Token：[`packages/@core/base/design/src/design-tokens/default.css`](mdc:packages/@core/base/design/src/design-tokens/default.css)
+- 深色主题 Token：[`packages/@core/base/design/src/design-tokens/dark.css`](mdc:packages/@core/base/design/src/design-tokens/dark.css)
+
+## 必须遵循
+
+1. 新增或修改样式时，优先使用 Tailwind utility class（含项目已扩展的 token/颜色/动画）。
+2. 需要 Tailwind 配置能力时，必须复用 `@vben/tailwind-config`（即项目的 `@tailwind-config`），禁止在业务目录创建独立 Tailwind 主题分支。
+3. 禁止新增与统一配置冲突的颜色、间距、圆角、阴影等设计 token；如确有必要，应先修改统一配置再使用。
+4. 仅在 Tailwind 无法表达或会显著降低可维护性时，才允许少量补充样式；补充样式必须保持语义清晰并最小化。
+5. 同类视觉效果应复用现有 class 组合，避免重复定义样式规则。
+6. 所有 CSS 变量和设计 token 必须以 `packages/@core/base/design/src/design-tokens` 为准，禁止在业务目录定义同语义分叉 token。
+7. 需要新增或调整主题能力时，先修改 `design-tokens`（如 `default.css` / `dark.css`）与 `@vben/tailwind-config`，再在业务代码中消费。
+
+## 约束目标
+
+- 保持跨应用视觉一致性
+- 降低样式分叉与维护成本
+- 确保主题 token 与暗色模式能力可复用

@@ -1,0 +1,27 @@
+---
+alwaysApply: true
+description: table、form、drawer、modal(model) 组件必须使用 vben-admin API
+---
+# Vben Component API Rule
+
+在实现 `table`、`form`、`drawer`、`modal(model)` 相关功能时，必须优先使用 vben-admin 提供的封装 API，禁止绕过统一封装直接拼装同类能力。
+
+## API 来源
+
+- Table/Grid：[`apps/web-antd/src/adapter/vxe-table.ts`](mdc:apps/web-antd/src/adapter/vxe-table.ts)
+- Form：[`apps/web-antd/src/adapter/form.ts`](mdc:apps/web-antd/src/adapter/form.ts)
+- Drawer/Modal：`@vben/common-ui`（如 `useVbenDrawer` / `useVbenModal`）
+
+## 必须遵循
+
+1. 表格能力必须通过 `useVbenVxeGrid` 与 `#/adapter/vxe-table` 类型体系实现，不直接自建表格状态管理层。
+2. 表单能力必须通过 `useVbenForm` 与 `#/adapter/form`（或项目统一约定入口）实现，统一校验与字段渲染机制。
+3. 抽屉能力必须使用 `useVbenDrawer`，弹窗能力必须使用 `useVbenModal`；禁止在业务中混用非统一的自定义控制协议。
+4. 新增页面的 table/form/drawer/modal 交互，必须复用 vben-admin 的 `api` 对象与生命周期调用模式（如 `gridApi`、`formApi`、`drawerApi`、`modalApi`）。
+5. 除性能或兼容性存在明确阻塞外，不允许绕开上述 API；如必须绕开，需在代码中说明原因并沉淀为可复用封装。
+
+## 约束目标
+
+- 保持交互行为一致性
+- 降低组件层重复封装成本
+- 统一类型约束与维护方式

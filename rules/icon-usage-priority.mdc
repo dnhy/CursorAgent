@@ -1,0 +1,44 @@
+---
+description: Vben 图标使用规范（优先使用 @vben/icons 统一管理）
+globs:
+  - "apps/web-antd/src/**/*.vue"
+  - "apps/web-antd/src/**/*.ts"
+  - "packages/effects/**/*.vue"
+  - "playground/src/**/*.vue"
+alwaysApply: false
+---
+
+# 项目图标使用规范（Vben）
+
+在实现或修改前端页面图标时，必须遵循以下优先级和约束。
+
+## 使用优先级（从高到低）
+
+1. **优先复用 `@vben/icons` 已导出的图标组件**  
+   - 在业务代码中直接 `import { XxxIcon } from '@vben/icons'` 使用。
+   - 统一通过 Tailwind 类控制尺寸和样式（例如 `class="size-5"`）。
+
+2. **如果没有现成图标，优先新增 Iconify 图标到项目图标包**  
+   - 在 `packages/icons/src/iconify/index.ts` 中使用 `createIconifyIcon` 新增导出。
+   - 命名需语义化、PascalCase，避免业务语义耦合。
+
+3. **如果 Iconify 不满足，再新增 SVG 图标到项目图标包**  
+   - 将 SVG 文件放到 `packages/icons/src/svg/icons`。
+   - 在 `packages/icons/src/svg/index.ts` 中通过 `createIconifyIcon('svg:xxx')` 导出。
+
+4. **仅在轻量装饰性场景下使用 Tailwind Iconify 类名**  
+   - 允许 `<span class="icon-[mdi--ab-testing]"></span>` 这种写法。  
+   - 仅用于无需复用的简单场景；可复用图标仍应沉淀到 `@vben/icons`。
+
+## 禁止项
+
+- 禁止在业务代码中直接引入第三方图标库实现（绕过 `@vben/icons` 管理）。
+- 禁止在业务目录内创建分叉图标注册中心。
+- 禁止出现同语义图标的重复定义（先检索 `packages/icons` 是否已存在）。
+
+## 落地要求
+
+- 业务组件中出现新增图标需求时，先检查 `@vben/icons` 是否已有可用导出。
+- 新增图标后，业务侧统一从 `@vben/icons` 引用，不直接引用内部路径。
+- 图标尺寸、颜色优先使用 Tailwind utility class，保持视觉一致性。
+

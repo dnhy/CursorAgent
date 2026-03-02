@@ -1,0 +1,30 @@
+---
+alwaysApply: true
+description: Vue 3 Composition API 开发规范
+---
+# Vue 3 Composition API Rule
+
+在 Vue 业务代码中，优先使用 Vue 3 Composition API，并遵循项目的目录与组件约定。
+
+## 必须遵循
+
+1. 组件逻辑统一使用 `setup` / `<script setup lang="ts">` 组织。
+2. 响应式状态优先使用 `ref` / `reactive`，派生状态使用 `computed`。
+3. 副作用与监听统一使用 `watch` / `watchEffect`，生命周期使用 `onMounted`、`onUpdated` 等组合式 API。
+4. 跨层级依赖传递优先使用 `provide` / `inject`，避免不必要的层层透传。
+5. 组件需定义清晰的 `props` 与 `emits` 类型，遵循 Vue 3 命名与风格指南。
+6. 异步组件场景优先考虑 `Suspense`，跨层渲染场景按需使用 `Teleport`。
+7. 项目默认构建体系为 Vite，新增前端能力需保持与现有 Vite 工程链路兼容。
+
+## 目录约定（优先遵循）
+
+建议按以下结构组织前端代码，并尽量与现有模块保持一致：
+
+- `src/components`
+- `src/composables`
+- `src/views`
+- `src/router`
+- `src/store`
+- `src/assets`
+- `src/App.vue`
+- `src/main.ts`
