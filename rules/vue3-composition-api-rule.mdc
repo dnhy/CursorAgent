@@ -15,6 +15,9 @@ description: Vue 3 Composition API 开发规范
 5. 组件需定义清晰的 `props` 与 `emits` 类型，遵循 Vue 3 命名与风格指南。
 6. 异步组件场景优先考虑 `Suspense`，跨层渲染场景按需使用 `Teleport`。
 7. 项目默认构建体系为 Vite，新增前端能力需保持与现有 Vite 工程链路兼容。
+8. 使用watch监听数据变化尽量避免使用deep:true，结合computed进行优化实现精准监听，避免大量无效触发。
+9. 更新pinia的数据禁止直接修改赋值或修改对象属性，应当通过store的方法进行修改。
+10. 封装hooks和公共方法不应该包含store、接口调用获取的数据，应该由调用方统一传入
 
 ## 目录约定（优先遵循）
 

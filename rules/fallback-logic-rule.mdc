@@ -1,0 +1,68 @@
+---
+alwaysApply: true
+description: 兜底逻辑防止冗余规范
+---
+
+# 兜底逻辑防止冗余规范
+
+编写代码时，避免过度冗余的兜底逻辑，保持代码简洁和逻辑一致性。
+
+## 核心原则
+
+1. **保持一致性**：获取数据时的兜底逻辑应与使用数据时的逻辑保持一致
+   - ❌ 错误示例：获取时使用 5 个兜底选项，但使用时只检查 2 个
+   - ✅ 正确示例：获取和使用时都使用相同的字段优先级
+
+2. **优先使用最直接的字段**：按照业务语义和常用程度排序
+   - 优先使用用户明确指定的字段（如 `alias`）
+   - 其次使用最常用的字段（如 `name`）
+   - 最后使用解析后的字段（如 `parseFieldName(name)`）
+
+3. **避免重复检查**：如果某个字段已经通过函数处理，不需要再单独检查原字段
+   - ❌ 错误示例：`parseFieldName(col.name) || col.name`（如果 name 存在，parseFieldName 会返回处理后的值或原值）
+   - ✅ 正确示例：`col.alias || parseFieldName(col.name) || col.name`
+
+4. **移除不必要的兜底**：如果某个字段在业务中不会被使用，不要加入兜底链
+   - ❌ 错误示例：`field1 || field2 || field3 || field4 || field5 || ''`（其中 field3 和 field4 在业务中不会被使用）
+   - ✅ 正确示例：`field1 || field2 || ''`（只保留实际会使用的字段）
+
+## 示例
+
+### 字段名获取示例
+
+```typescript
+// ❌ 过度冗余的兜底逻辑
+const fieldName =
+  parseFieldName(col.name) ||
+  parseFieldName(col.expression) ||
+  col.alias ||
+  col.name ||
+  '';
+
+// ✅ 简化后的兜底逻辑（与匹配逻辑保持一致）
+const fieldName = col.alias || parseFieldName(col.name) || col.name || '';
+```
+
+### 匹配逻辑一致性
+
+```typescript
+// 获取字段名
+const fieldName = col.alias || parseFieldName(col.name) || col.name || '';
+
+// 匹配时使用相同的逻辑
+const sourceField = (item.col.alias || item.col.name || '').trim().toLowerCase();
+```
+
+## 检查清单
+
+在编写兜底逻辑时，请确认：
+
+- [ ] 兜底链中的每个字段都在业务中被实际使用
+- [ ] 获取和使用数据时的字段优先级保持一致
+- [ ] 没有重复检查同一个字段的不同形式
+- [ ] 兜底链的长度合理（通常不超过 3 个选项）
+- [ ] 最终兜底值（如空字符串）是必要的
+
+## 特殊情况
+
+如果确实需要多个兜底选项，请在代码中添加注释说明每个选项的业务含义和使用场景。
