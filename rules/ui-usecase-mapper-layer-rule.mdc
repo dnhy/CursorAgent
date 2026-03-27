@@ -1,0 +1,57 @@
+---
+alwaysApply: true
+---
+# UI-Usecase-Mapper Layer Rule
+
+在前端复杂业务模块开发中（React/Vue），默认采用三层分离：`UI组件` / `usecase编排` / `纯函数映射`。  
+目标是降低耦合、提升可维护性与可测试性，避免将业务编排塞进组件文件（`.vue` / `.tsx`）。
+
+## 分层职责
+
+1. **UI组件层（View）**
+   - 只负责展示、交互事件、调用 usecase、展示反馈（loading/message）。
+   - 禁止在组件中直接实现复杂业务组装逻辑（如 relation 计算、payload 组装、复杂数据清洗）。
+   - Vue 组件可参考：[DataModelDrawer.vue](mdc:apps/web-antd/src/views/data/model/components/common/DataModelDrawer.vue)
+
+2. **Usecase 编排层（Orchestration）**
+   - 负责业务流程顺序编排：调用 store action、API、graph 采集、mapper 转换。
+   - 可以包含副作用，但不承载复杂数据转换细节。
+   - 建议放在 `hooks` 或 `composables`（React 通常使用 hooks，Vue 通常使用 composables），例如：
+     - [useDataModelDrawerUseCase.ts](mdc:apps/web-antd/src/views/data/model/hooks/useDataModelDrawerUseCase.ts)
+
+3. **纯函数映射层（Mapper / Domain Utils）**
+   - 只做数据转换与规则映射（输入 -> 输出），无 UI / store / 网络副作用。
+   - 应可独立单测，函数命名语义化（如 `buildRelations`、`buildPersistModel`）。
+   - 可参考：
+     - [dataModelDrawer.mapper.ts](mdc:apps/web-antd/src/views/data/model/hooks/dataModelDrawer.mapper.ts)
+     - [dataModelDrawer.graph.ts](mdc:apps/web-antd/src/views/data/model/hooks/dataModelDrawer.graph.ts)
+
+## 开发时机（必须遵循）
+
+1. 对于中高复杂度需求（多状态、多交互、多接口），**开发阶段即按分层落地**，不等功能完成后再整体重构。
+2. 对于低复杂度需求，可先实现最小功能，但在出现以下任一信号时必须拆分：
+   - 单文件超过 200 行且持续增长；
+   - 同一函数同时处理 UI + API + store + 转换；
+   - 同类转换逻辑开始重复。
+
+## 响应式数据传递约定
+
+1. usecase 需要持续消费最新状态时：
+   - Vue 优先传 `Ref` / `ComputedRef`（可用 `Readonly<Ref<T>>` 约束输入只读）；
+   - React 优先传状态值 + setter / dispatch，或传稳定引用（如 `useRef`）。
+2. 仅在“调用时按需取值”的场景，才使用 getter（Vue: `() => xxx.value`，React: `() => state`）。
+3. 派生值应使用框架内建机制（Vue `computed`，React `useMemo`），不要把它们当成“获取最新值”的替代方案。
+
+## 禁止项
+
+1. 禁止在 `.vue` 组件中直接实现跨模块复杂映射和规则拼装。
+2. 禁止在 `.tsx` 组件中直接实现跨模块复杂映射和规则拼装。
+3. 禁止在 mapper 层调用 API、操作 store、直接依赖组件实例。
+4. 禁止 usecase 与 UI 互相引用（避免循环依赖）。
+
+## 验收清单
+
+- [ ] 组件文件只剩 UI 与事件转发，主流程在 usecase。
+- [ ] 转换规则沉淀为纯函数，至少可做单测。
+- [ ] 复杂流程改动不需要同步改动多个 UI 组件。
+- [ ] 新增逻辑符合单一职责，且命名与目录可定位。
